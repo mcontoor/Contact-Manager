@@ -4,13 +4,28 @@ import uuid from "uuid";
 import TextInputGroup from "../layout/TextInputGroup";
 import axios from "axios";
 
-export default class AddContact extends Component {
+export default class EditContact extends Component {
   state = {
     name: "",
     email: "",
     phone: "",
     errors: {}
   };
+
+  async componentDidMount() {
+    const { id } = this.props.match.params;
+    const res = await axios.get(
+      `https://jsonplaceholder.typicode.com/users/${id}`
+    );
+
+    const contact = res.data;
+
+    this.setState({
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone
+    });
+  }
 
   onSubmit = (dispatch, e) => {
     e.preventDefault();
@@ -39,15 +54,19 @@ export default class AddContact extends Component {
       return;
     }
 
-    const newContact = {
+    const updContact = {
       name,
       email,
       phone
-    };
+    }
 
-    axios
-      .post("https://jsoonplaceholder.typicode.com/users", newContact)
-      .then(res => dispatch({ type: "ADD_CONTACT", payload: res.data }));
+    const { id } = this.props.match.params;
+
+    const res = await axios.put(`https://sonplaceholder.typicode.come/users/${id}`, updContact);
+
+    dispatch({ type: 'UPDATE_CONTACT', payload: res.data })
+
+
 
     //clear state
     this.setState({
@@ -55,6 +74,8 @@ export default class AddContact extends Component {
       email: "",
       phone: ""
     });
+
+    this.props.history.push("/");
   };
 
   onChange = e => this.setState({ [e.target.name]: e.target.value });
@@ -68,13 +89,13 @@ export default class AddContact extends Component {
           const { dispatch } = value;
           return (
             <div className="card mb-3">
-              <div className="card-header">Add Contact</div>
+              <div className="card-header">Edit Contact</div>
               <div className="card-body">
                 <form onSubmit={this.onSubmit.bind(this, dispatch)}>
                   <TextInputGroup
                     label="Name"
                     name="name"
-                    placeholder="Enter Name"
+                    placeholder="Update Name"
                     value={name}
                     onChange={this.onChange}
                     errors={errors.name}
@@ -82,7 +103,7 @@ export default class AddContact extends Component {
                   <TextInputGroup
                     label="Email"
                     name="email"
-                    placeholder="Enter Email"
+                    placeholder="Update Email"
                     value={email}
                     onChange={this.onChange}
                     errors={errors.email}
@@ -90,7 +111,7 @@ export default class AddContact extends Component {
                   <TextInputGroup
                     label="Phone"
                     name="phone"
-                    placeholder="Enter Phone"
+                    placeholder="Update Phone"
                     value={phone}
                     onChange={this.onChange}
                     errors={errors.phone}
@@ -98,7 +119,7 @@ export default class AddContact extends Component {
 
                   <input
                     type="submit"
-                    value="Add contact"
+                    value="Update contact"
                     className="btn btn-light btn-block"
                   />
                 </form>
